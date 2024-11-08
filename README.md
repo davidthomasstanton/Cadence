@@ -1,13 +1,10 @@
-## CS50's Web Programming with Python and JavaScript
-## David Stanton
-
 # Capstone Project - Cadence 🎼
-A rehearsal and logistics App for musical ensembles
+CS50's Web Programming with Python and JavaScript
 - [ ] [YouTube Walkthrough]()
 - [ ] [Branch]()
 
 ### Overview
-Cadence is a ...
+Cadence is a rehearsal and logistics App for musical ensembles.
 
 ### Walkthrough
 
