@@ -7,8 +7,8 @@ class User(models.Model):
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
     image = models.ImageField(upload_to='user-images/', blank=True)
-    ensembles = models.ManyToManyField('Ensemble', related_name='members', blank=True)
-    song_likes = models.ManyToManyField('Song', related_name='liked_by', blank=True)
+    ensembles = models.ManyToManyField('Ensemble', related_name='user_ensembles', blank=True)
+    song_likes = models.ManyToManyField('Song', related_name='user_song_likes', blank=True)
     voice_part = models.CharField(max_length=30, blank=True)
     instrument = models.CharField(max_length=30, blank=True)
 
@@ -36,8 +36,8 @@ class Ensemble(models.Model):
     description = models.TextField(blank=True)
     image = models.ImageField(upload_to='ensemble-images/', blank=True)
     members = models.ManyToManyField(User, related_name='ensembles_joined', blank=True)
-    songs = models.ManyToManyField('Song', related_name='ensembles', blank=True)    
-    sets = models.ManyToManyField('Set', related_name='ensembles', blank=True)
+    songs = models.ManyToManyField('Song', related_name='ensemble_songs', blank=True)    
+    sets = models.ManyToManyField('Set', related_name='ensemble_sets', blank=True)
 
     def __str__(self):
         return f"{self.name}, part of {self.organization}"
@@ -66,11 +66,11 @@ class Song(models.Model):
     compilation = models.CharField(max_length=30, blank=True)
     year = models.IntegerField(blank=True)
     publisher = models.CharField(max_length=30, blank=True)
-    charts = models.ManyToManyField('Chart', related_name='songs', blank=True)
-    tracks = models.ManyToManyField('Track', related_name='songs', blank=True)
-    sets = models.ManyToManyField('Set', related_name='songs', blank=True)
-    ensembles = models.ManyToManyField(Ensemble, related_name='songs', blank=True)
-    liked_by = models.ManyToManyField(User, related_name='liked_songs', blank=True)
+    charts = models.ManyToManyField('Chart', related_name='song_charts', blank=True)
+    tracks = models.ManyToManyField('Track', related_name='song_tracks', blank=True)
+    sets = models.ManyToManyField('Set', related_name='songs_set', blank=True)
+    ensembles = models.ManyToManyField(Ensemble, related_name='song_ensembles', blank=True)
+    liked_by = models.ManyToManyField(User, related_name='song_liked_by', blank=True)
 
     def __str__(self):
         return f"{self.title} by {self.composer}"
@@ -97,9 +97,9 @@ class Song(models.Model):
 
 class Set(models.Model):
     name = models.CharField(max_length=30)
-    description = models.TextFielf(blank=True)
+    description = models.TextField(blank=True)
     date = models.DateField(blank=True)
-    songs = models.ManyToManyField(Song, related_name='sets', blank=True)
+    songs = models.ManyToManyField(Song, related_name='set_songs', blank=True)
     ensemble = models.ForeignKey(Ensemble, on_delete=models.CASCADE)
 
     def __str__(self):
