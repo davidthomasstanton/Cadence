@@ -76,8 +76,12 @@ WSGI_APPLICATION = 'cadence.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postresql',
+        'NAME': BASE_DIR / 'db.postresql',
+        'USER': 'postgres',
+        'PASSWORD': 'Random#22',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
