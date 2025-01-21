@@ -1,16 +1,18 @@
+import uuid
 from django.db import models
 
 class User(models.Model):
+    uid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     username = models.CharField(max_length=30, unique=True)
     password = models.CharField(max_length=30)
-    email = models.EmailField(max_length=30, blank=True)
+    email = models.EmailField(max_length=60, blank=True, null=True)
     first_name = models.CharField(max_length=30)
     last_name = models.CharField(max_length=30)
-    image = models.ImageField(upload_to='user-images/', blank=True)
+    image = models.ImageField(upload_to='user-images/', blank=True, null=True)
     ensembles = models.ManyToManyField('Ensemble', related_name='user_ensembles', blank=True)
     song_likes = models.ManyToManyField('Song', related_name='user_song_likes', blank=True)
-    voice_part = models.CharField(max_length=30, blank=True)
-    instrument = models.CharField(max_length=30, blank=True)
+    voice_part = models.CharField(max_length=30, blank=True, null=True)
+    instrument = models.CharField(max_length=30, blank=True, null=True)
     # Meta Data
     date_created = models.DateTimeField(auto_now_add=True)
     login_count = models.IntegerField(default=0)
@@ -24,7 +26,7 @@ class User(models.Model):
     
     def serialize(self):
         return {
-            'id': self.id,
+            'id': self.uid,
             'username': self.username,
             'email': self.email,
             'first_name': self.first_name,
@@ -37,11 +39,12 @@ class User(models.Model):
         }
 
 class Ensemble(models.Model):
-    name = models.CharField(max_length=30, unique=True)
+    uid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    name = models.CharField(max_length=60, unique=True)
     admins = models.ManyToManyField(User, related_name='ensembles_administered', blank=True)
-    organization = models.CharField(max_length=30, blank=True)
-    description = models.TextField(blank=True)
-    image = models.ImageField(upload_to='ensemble-images/', blank=True)
+    organization = models.CharField(max_length=60, blank=True, null=True)
+    description = models.TextField(blank=True, null=True)
+    image = models.ImageField(upload_to='ensemble-images/', blank=True, null=True)
     members = models.ManyToManyField(User, related_name='ensembles_joined', blank=True)
     songs = models.ManyToManyField('Song', related_name='ensemble_songs', blank=True)    
     sets = models.ManyToManyField('Set', related_name='ensemble_sets', blank=True)
@@ -56,7 +59,7 @@ class Ensemble(models.Model):
     
     def serialize(self):
         return {
-            'id': self.id,
+            'id': self.uid,
             'name': self.name,
             'admins': [admin.serialize() for admin in self.admins.all()],
             'organization': self.organization,
@@ -68,16 +71,17 @@ class Ensemble(models.Model):
         }
 
 class Song(models.Model):
-    title = models.CharField(max_length=30)
-    composer = models.CharField(max_length=30, blank=True)
-    lyricist = models.CharField(max_length=30, blank=True)
-    arranger = models.CharField(max_length=30, blank=True)
-    key = models.CharField(max_length=30, blank=True)
-    hymn_tune = models.CharField(max_length=30, blank=True)
-    hymn_number = models.CharField(max_length=30, blank=True)
-    compilation = models.CharField(max_length=30, blank=True)
-    year = models.IntegerField(blank=True)
-    publisher = models.CharField(max_length=30, blank=True)
+    uid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    title = models.CharField(max_length=60)
+    composer = models.CharField(max_length=60, blank=True, null=True)
+    lyricist = models.CharField(max_length=60, blank=True, null=True)
+    arranger = models.CharField(max_length=60, blank=True, null=True)
+    key = models.CharField(max_length=30, blank=True, null=True)
+    hymn_tune = models.CharField(max_length=30, blank=True, null=True)
+    hymn_number = models.CharField(max_length=30, blank=True, null=True)
+    compilation = models.CharField(max_length=60, blank=True, null=True)
+    year = models.IntegerField(blank=True, null=True)
+    publisher = models.CharField(max_length=60, blank=True, null=True)
     charts = models.ManyToManyField('Chart', related_name='song_charts', blank=True)
     tracks = models.ManyToManyField('Track', related_name='song_tracks', blank=True)
     sets = models.ManyToManyField('Set', related_name='songs_set', blank=True)
@@ -93,7 +97,7 @@ class Song(models.Model):
 
     def serialize(self):
         return {
-            'id': self.id,
+            'id': self.uid,
             'title': self.title,
             'composer': self.composer,
             'lyricist': self.lyricist,
@@ -112,9 +116,10 @@ class Song(models.Model):
         }
 
 class Set(models.Model):
-    name = models.CharField(max_length=30)
-    description = models.TextField(blank=True)
-    date = models.DateField(blank=True)
+    uid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+    name = models.CharField(max_length=60)
+    description = models.TextField(blank=True, null=True)
+    date = models.DateField(blank=True, null=True)
     songs = models.ManyToManyField(Song, related_name='set_songs', blank=True)
     ensemble = models.ForeignKey(Ensemble, on_delete=models.CASCADE)
     #Meta Data
@@ -127,7 +132,7 @@ class Set(models.Model):
 
     def serialize(self):
         return {
-            'id': self.id,
+            'id': self.uid,
             'name': self.name,
             'description': self.description,
             'date': self.date,
@@ -136,34 +141,36 @@ class Set(models.Model):
         }
 
 class Chart(models.Model):
+    uid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
-    type = models.CharField(max_length=30)
-    pdf = models.FileField(upload_to='pdfs/', blank=True)
+    name = models.CharField(max_length=60)
+    type = models.CharField(max_length=60)
+    pdf = models.FileField(upload_to='pdfs/', blank=True, null=True)
 
     def __str__(self):
         return f"{self.name} for {self.song.title}"
     
     def serialize(self):
         return {
-            'id': self.id,
+            'id': self.uid,
             'name': self.name,
             'type': self.type,
             'pdf': self.pdf.url,
         }
 
 class Track(models.Model):
+    uid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     song = models.ForeignKey(Song, on_delete=models.CASCADE)
-    name = models.CharField(max_length=30)
-    type = models.CharField(max_length=30)
-    audio = models.FileField(upload_to='audio/', blank=True)
+    name = models.CharField(max_length=60)
+    type = models.CharField(max_length=60)
+    audio = models.FileField(upload_to='audio/', blank=True, null=True)
 
     def __str__(self):
         return f"{self.name} for {self.song.title}"
     
     def serialize(self):
         return {
-            'id': self.id,
+            'id': self.uid,
             'name': self.name,
             'type': self.type,
             'audio': self.audio.url,
